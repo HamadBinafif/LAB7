@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Unsplash API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+
+        nav h1 {
+            font-size: 18px;
+            margin: 0 12px 0 0;
+        }
+
+        nav input {
+            padding: 6px;
+            width: 200px;
+        }
+
+        nav button {
+            padding: 6px 10px;
+            background: #444;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #results {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding: 12px 80px;
+        }
+
+        #results img {
+            width: 100%;
+            height: 450px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <h1>Unsplash API</h1>
+    <input id="query" type="text" value="Makkah">
+    <button onclick="searchXHR()">Search using XHR</button>
+    <button onclick="searchFetchPromise()">Search using fetch (promises)</button>
+    <button onclick="searchFetchAsync()">Search using fetch (async/await)</button>
+</nav>
+
+<div id="results"></div>
+
+<script>
+    const ACCESS_KEY = "A3R82ddeOdtlYO7lFpEQ9zNNSiQ_YALtIw7_NMsF4mM";
+    const URL = "https://api.unsplash.com/search/photos";
+
+    function getQuery() {
+        return document.getElementById("query").value;
+    }
+
+    function showImages(data) {
+        const results = document.getElementById("results");
+        results.innerHTML = "";
+        data.results.forEach(photo => {
+            const img = document.createElement("img");
+            img.src = photo.urls.small;
+            img.alt = photo.alt_description;
+            results.appendChild(img);
+        });
+    }
+
+
+    function searchXHR() {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", URL + "?query=" + getQuery());
+        xhr.setRequestHeader("Authorization", "Client-ID " + ACCESS_KEY);
+        xhr.onload = function () {
+            const data = JSON.parse(xhr.responseText);
+            showImages(data);
+        };
+        xhr.send();
+    }
+
+
+    function searchFetchPromise() {
+        fetch(URL + "?query=" + getQuery(), {
+            headers: { "Authorization": "Client-ID " + ACCESS_KEY }
+        })
+            .then(response => response.json())
+            .then(data => showImages(data));
+    }
+
+
+    async function searchFetchAsync() {
+        const response = await fetch(URL + "?query=" + getQuery(), {
+            headers: { "Authorization": "Client-ID " + ACCESS_KEY }
+        });
+        const data = await response.json();
+        showImages(data);
+    }
+</script>
+
+</body>
+</html>
